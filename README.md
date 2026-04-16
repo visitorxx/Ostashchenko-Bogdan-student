@@ -7,10 +7,6 @@
 - **index.html** - Портфоліо-сторінка студента
 - **scene.html** - Інтерактивна 3D сцена з текстурою відео на основі Three.js
 
-## 🚀 Посилання
-
-👉 **[Переглянути портфоліо на GitHub Pages](https://visitorxx.github.io/threejs-student/)**
-
 
 ## 📚 Навчання
 
