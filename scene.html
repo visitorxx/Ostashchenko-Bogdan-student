@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Сцена з Відео</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ui-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .header {
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            pointer-events: all;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            pointer-events: all;
+            text-align: right;
+        }
+
+        .controls button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            margin-left: 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .controls button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 100px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #67e8f9;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            pointer-events: all;
+            max-width: 300px;
+            border: 1px solid #667eea;
+        }
+
+        .info-panel h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .info-panel p {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            .header, .controls {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .header p {
+                font-size: 0.9em;
+            }
+
+            .info-panel {
+                right: 15px;
+                top: 90px;
+                max-width: 250px;
+                font-size: 0.8em;
+                padding: 15px;
+            }
+
+            .controls button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+                margin: 5px 5px 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <video id="video" playsinline muted loop crossorigin="anonymous" style="display:none">
+        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        Ваш браузер не підтримує відео.
+    </video>
+    
+    <div class="ui-container">
+        <div class="header">
+            <h1>🎬 Three.js + Відео</h1>
+            <p>Інтерактивна 3D сцена зтекстурою</p>
+        </div>
+
+        <div class="info-panel">
+            <h3>💡 Керування</h3>
+            <p><strong>Мишка:</strong> натисніть і перетягніть для обертання сцени</p>
+            <p><strong>Колесо:</strong> масштабування</p>
+            <p><strong>Кнопки:</strong> контроль відео</p>
+        </div>
+
+        <div class="controls">
+            <button onclick="goBack()">← Назад</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a2e);
+        
+        const canvas = document.getElementById('canvas');
+        const camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        camera.position.z = 3;
+
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas: canvas, 
+            antialias: true, 
+            alpha: true 
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        // Use an actual HTML5 video element as a VideoTexture
+        const video = document.getElementById('video');
+        video.muted = true;
+        video.setAttribute('muted', '');
+        video.loop = true;
+
+        // Try to autoplay; if blocked, user can press Play via controls
+        const tryPlay = () => {
+            const p = video.play();
+            if (p !== undefined) {
+                p.catch(()=>{
+                    // Autoplay blocked — user must press Play
+                    const btn = document.getElementById('playBtn');
+                    if (btn) btn.textContent = '▶ Play';
+                });
+            }
+        };
+        tryPlay();
+
+        const videoTexture = new THREE.VideoTexture(video);
+        videoTexture.minFilter = THREE.LinearFilter;
+        videoTexture.magFilter = THREE.LinearFilter;
+        videoTexture.format = THREE.RGBFormat;
+
+        // Fallback canvas texture in case video can't play / has no data
+        const canvas2 = document.createElement('canvas');
+        canvas2.width = 512;
+        canvas2.height = 512;
+        const ctx = canvas2.getContext('2d');
+        const canvasTexture = new THREE.CanvasTexture(canvas2);
+        canvasTexture.minFilter = THREE.LinearFilter;
+        canvasTexture.magFilter = THREE.LinearFilter;
+
+        function updateFallbackCanvas() {
+            // static fallback: simple gradient + subtle pattern (non-animated)
+            const w = canvas2.width;
+            const h = canvas2.height;
+            const grad = ctx.createLinearGradient(0, 0, w, h);
+            grad.addColorStop(0, 'hsl(210,70%,50%)');
+            grad.addColorStop(1, 'hsl(260,60%,40%)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, w, h);
+            // subtle static circles for texture
+            ctx.fillStyle = 'rgba(255,255,255,0.03)';
+            for (let i=0;i<6;i++){
+                const r = 30 + (i*8);
+                ctx.beginPath();
+                ctx.arc(w*(i+1)/7, h*0.5, r, 0, Math.PI*2);
+                ctx.fill();
+            }
+            canvasTexture.needsUpdate = true;
+        }
+
+        // create initial static fallback texture
+        updateFallbackCanvas();
+
+        // Create geometry and material: a cube
+        const geometry = new THREE.BoxGeometry(1.6, 1.6, 1.6);
+        const material = new THREE.MeshPhongMaterial({
+            map: videoTexture,
+            wireframe: false,
+            shininess: 100,
+            side: THREE.DoubleSide
+        });
+        // Make sure the mesh is visible even if the video texture is not ready
+        material.color = new THREE.Color(0xffffff);
+        material.emissive = new THREE.Color(0x222222);
+        material.emissiveIntensity = 0.6;
+
+        const mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+
+        // Lighting
+        const light1 = new THREE.DirectionalLight(0xffffff, 0.8);
+        light1.position.set(5, 5, 5);
+        scene.add(light1);
+
+        const light2 = new THREE.DirectionalLight(0x667eea, 0.5);
+        light2.position.set(-5, -5, 5);
+        scene.add(light2);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+
+        // Mouse controls
+        // Enable click-and-drag rotation (square will rotate with mouse)
+        const canvasEl = canvas;
+        canvasEl.style.cursor = 'grab';
+
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let startRotX = 0, startRotY = 0;
+        let targetRotationX = mesh.rotation.x;
+        let targetRotationY = mesh.rotation.y;
+
+        canvasEl.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startRotX = targetRotationX;
+            startRotY = targetRotationY;
+            canvasEl.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            canvasEl.style.cursor = 'grab';
+        });
+
+        canvasEl.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            // sensitivity
+            targetRotationY = startRotY + dx * 0.01;
+            targetRotationX = startRotX + dy * 0.01;
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // update only when video has data
+            if (video.readyState >= video.HAVE_CURRENT_DATA) videoTexture.needsUpdate = true;
+
+            // Smoothly interpolate rotation towards targetRotation (click-and-drag)
+            mesh.rotation.x += (targetRotationX - mesh.rotation.x) * 0.07;
+            mesh.rotation.y += (targetRotationY - mesh.rotation.y) * 0.07;
+
+            // Keep square scale static (no pulsing)
+            mesh.scale.set(1, 1, 1);
+
+            // Use video texture when available, otherwise fallback canvas texture
+            if (video.readyState >= video.HAVE_CURRENT_DATA) {
+                if (material.map !== videoTexture) {
+                    material.map = videoTexture;
+                    material.needsUpdate = true;
+                }
+                videoTexture.needsUpdate = true;
+            } else {
+                if (material.map !== canvasTexture) {
+                    material.map = canvasTexture;
+                    material.needsUpdate = true;
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Control functions
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>

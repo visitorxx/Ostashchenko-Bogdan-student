@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Портфоліо - Студент Three.js</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px 40px;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #764ba2;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        .description {
+            color: #555;
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+
+        .projects {
+            margin-top: 50px;
+        }
+
+        .projects h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .project-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: left;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .project-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .project-card p {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .project-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .project-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .footer {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid #e9ecef;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .social-links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 40px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Привіт! 👋</h1>
+            <div class="subtitle">Я студент, який вивчає WebGL та Three.js</div>
+            <div class="badge">3D Веб-розробник</div>
+            <p class="description">
+                Ласкаво просимо до мого портфоліо! Я створив інтерактивну 3D-сцену у браузері.
+                Мою роботу можна переглянути нижче.
+            </p>
+        </div>
+
+        <div class="projects">
+            <h2>📁 Мої проекти</h2>
+            <div class="project-grid">
+                <div class="project-card">
+                    <h3>🎬 Three.js сцена з відео</h3>
+                    <p>
+                        Інтерактивна 3D-сцена з накладеним відео. 
+                        Демонструє навички роботи з Three.js, текстурами та обробкою відео.
+                    </p>
+                    <a href="scene.html" class="project-link">Переглянути проект →</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Розроблено зі ❤️ як частина навчання 3D веб-графіки</p>
+            <p style="margin-top: 10px; font-size: 0.85em;">
+                <a href="https://github.com/visitorxx/threejs-student" style="color: #667eea; text-decoration: none;">
+                    Переглянути на GitHub →
+                </a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
